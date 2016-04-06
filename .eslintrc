@@ -1,0 +1,17 @@
+{
+  "env": {
+    "node": true
+  },
+  "rules": {
+    "no-multi-spaces": false,
+    "no-multi-str": false,
+    "quotes": [1, "single"],
+    "no-underscore-dangle": false,
+    "comma-dangle": false,
+    "strict": 0,
+    "camelcase": false
+  },
+  "globals":{
+    "Parse": true
+  }
+}
