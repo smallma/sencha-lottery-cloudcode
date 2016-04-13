@@ -3,6 +3,33 @@ var _ = require('underscore');
 var Lottery = Parse.Object.extend('Lottery');
 var Jackpot = Parse.Object.extend('Jackpot');
 
+Parse.Cloud.define('testLottery', function (request, response) {
+  function _getJackpot() {
+    var promise = new Parse.Promise();
+
+    var query = new Parse.Query(Lottery);
+    query.equalTo('typeId', 1);
+    query.descending('drawDate');
+    query.first()
+      .then(
+        function(result) {
+          return promise.resolve(result);
+        },
+        function(error) {
+          return promise.reject(error);
+        }
+      );
+
+    return promise;
+  }
+  _getJackpot()
+  .then(
+    function(result) {
+      response.success(result);
+    },
+    function (error) { response.error(error); }
+  );
+});
 
 Parse.Cloud.define('lastLotteryResult', function(request, response) {
   var defaulTypeIds = _.range(1, 11);
@@ -25,7 +52,7 @@ Parse.Cloud.define('lastLotteryResult', function(request, response) {
 
       var query = new Parse.Query(Lottery);
       query.equalTo('typeId', typeId);
-      query.ascending('drawDate');
+      query.descending('drawDate');
       query.limit(1);
       var queryCollection = query.collection();
 
@@ -80,7 +107,7 @@ Parse.Cloud.define('lastLotteryResult', function(request, response) {
       _.each(currentLotteryResults, function(currentLotteryResult) {
         var match = _.where(results, {typeId: currentLotteryResult.typeId})[0];
         if(match) {
-          console.log('match!!!');
+          console.log('match!!! currentLottery money: ' + currentLotteryResult.money);
           match.jackpot = currentLotteryResult.money;
         }
       });
@@ -98,7 +125,7 @@ Parse.Cloud.define('getHistory', function(request, response) {
 
   var lotteryQuery = new Parse.Query(Lottery);
   lotteryQuery.equalTo('typeId', typeId);
-  lotteryQuery.addDescending('drawDate');
+  lotteryQuery.descending('drawDate');
   lotteryQuery.limit(1000);
 
   var queryCollection = lotteryQuery.collection();
